@@ -22,5 +22,17 @@
     "to": "rakshithk.24.beis@acharya.ac.in",
     "subject": "[EXIT] KA 40 EK 5158 | Rs.100 collected",
     "status": "sent"
+  },
+  {
+    "timestamp": "2026-04-08T11:39:48.635772",
+    "to": "rakshith3600@gmail.com",
+    "subject": "Vehicle Parked - KA 40 EK 5158",
+    "status": "sent"
+  },
+  {
+    "timestamp": "2026-04-08T11:39:52.615600",
+    "to": "rakshithk.24.beis@acharya.ac.in",
+    "subject": "[ENTRY] KA 40 EK 5158 - 08-04-2026 11:39 AM",
+    "status": "sent"
   }
 ]

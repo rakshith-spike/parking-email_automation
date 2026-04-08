@@ -19,8 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from bson import ObjectId
 from apscheduler.schedulers.background import BackgroundScheduler
-from collections import Counter
-import certifi                          # FIX 1: SSL cert bundle
+from collections import Counter                      
 import os
 import re
 import threading
@@ -40,15 +39,14 @@ PLATE_REGEX = re.compile(r'^[A-Z]{2}\s[0-9]{2}\s[A-Z]{1,3}\s[0-9]{4}$')
 
 # ─── DB helper (FIX 1: use certifi to fix SSL error) ──────────────────────────
 def get_db():
+    import certifi
     client = MongoClient(
         os.getenv("MONGO_URL"),
-        tls=True,
-        tlsAllowInvalidCertificates=True,   # 🔥 bypass SSL
+        tlsCAFile=certifi.where(),        # ✅ proper SSL via certifi
         serverSelectionTimeoutMS=5000
     )
     db = client["parking"]
-    return client, db
-
+    return client,db
 # ─── Scheduler (FIX 3: clean shutdown via lifespan) ───────────────────────────
 scheduler = BackgroundScheduler()
 

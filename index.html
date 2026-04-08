@@ -402,7 +402,7 @@
     font-size: 0.68rem;
     letter-spacing: 2px;
     color: var(--muted);
-    text-transform: uppercase;
+    text-transform: none;
     margin-bottom: 10px;
     display: block;
   }
@@ -417,7 +417,7 @@
     font-family: 'DM Mono', monospace;
     font-size: 1rem;
     letter-spacing: 3px;
-    text-transform: uppercase;
+    text-transform: none;
     outline: none;
     transition: border-color 0.2s;
     margin-bottom: 6px;
@@ -601,6 +601,96 @@
     color: var(--muted);
     text-align: center;
     padding: 30px 0;
+    letter-spacing: 1px;
+  }
+
+  /* ── Records Modal ── */
+  .records-modal {
+    max-width: 600px !important;
+  }
+
+  .records-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .records-tab {
+    flex: 1;
+    padding: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .records-tab.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(245,197,66,0.06);
+  }
+
+  .records-table-wrap {
+    max-height: 360px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+    margin-bottom: 16px;
+  }
+
+  .records-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+  }
+
+  .records-table th {
+    text-align: left;
+    padding: 8px 10px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--card);
+  }
+
+  .records-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  .records-table tr:last-child td { border-bottom: none; }
+
+  .records-table td .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .badge.in  { background: rgba(61,255,160,0.12); color: var(--success); border: 1px solid rgba(61,255,160,0.25); }
+  .badge.out { background: rgba(255,94,58,0.12);  color: var(--accent2); border: 1px solid rgba(255,94,58,0.25); }
+
+  .records-empty {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-align: center;
+    padding: 40px 0;
     letter-spacing: 1px;
   }
 
@@ -817,6 +907,29 @@
   </div>
 </div>
 
+<!-- Records Modal -->
+<div class="modal-overlay" id="records-modal">
+  <div class="modal records-modal" style="max-width:600px;">
+    <div class="modal-header" style="margin-bottom:16px;">
+      <span class="modal-vicon">📋</span>
+      <div>
+        <div class="modal-vtitle">Records</div>
+        <div class="modal-vfee" id="records-subtitle">All parking activity</div>
+      </div>
+    </div>
+    <div class="records-tabs">
+      <div class="records-tab active" id="tab-all" onclick="switchTab('all')">All</div>
+      <div class="records-tab" id="tab-in"  onclick="switchTab('in')">Entries</div>
+      <div class="records-tab" id="tab-out" onclick="switchTab('out')">Exits</div>
+      <div class="records-tab" id="tab-parked" onclick="switchTab('parked')">Currently Parked</div>
+    </div>
+    <div class="records-table-wrap" id="records-table-wrap">
+      <div class="records-empty">No records found</div>
+    </div>
+    <button class="exit-cancel-btn" onclick="closeRecordsModal()">Close</button>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -829,6 +942,7 @@
   let parked = [];
   let selectedParkCard = null;
   let selectedExitId = null;
+  let activeTab = 'all';
 
   const BASE_URL = "http://127.0.0.1:8000"; // ✅ Replace with your EC2/Render URL e.g. http://1.2.3.4:8000
 
@@ -880,6 +994,7 @@
     return valid;
   }
 
+  // ── Park Modal ──────────────────────────────────────────────────────────────
   function openParkModal(card) {
     if (count >= MAX) { showToast('⚠ Parking is full!', 'error'); return; }
 
@@ -947,6 +1062,53 @@
     .catch(() => showToast('⚠ Network error', 'error'));
   }
 
+  // ── Exit Modal ──────────────────────────────────────────────────────────────
+  function openExitModal() {
+    selectedExitId = null;
+    document.getElementById('exit-search').value = '';
+    document.getElementById('exit-confirm-btn').disabled = true;
+    renderParkedList(parked);
+    document.getElementById('exit-modal').classList.add('open');
+  }
+
+  function closeExitModal() {
+    document.getElementById('exit-modal').classList.remove('open');
+    selectedExitId = null;
+  }
+
+  function renderParkedList(list) {
+    const container = document.getElementById('parked-list');
+    if (!list || list.length === 0) {
+      container.innerHTML = '<div class="no-vehicles-msg">No vehicles currently parked</div>';
+      return;
+    }
+    container.innerHTML = list.map(v => `
+      <div class="parked-item ${selectedExitId === v.id ? 'selected' : ''}"
+           onclick="selectExitVehicle('${v.id}', this)">
+        <span class="pi-icon">${v.icon}</span>
+        <div class="pi-info">
+          <div class="pi-plate">${v.plate}</div>
+          <div class="pi-name">${v.name}${v.user_name ? ' · ' + v.user_name : ''}</div>
+        </div>
+        <span class="pi-fee">₹${v.fee}</span>
+        <span class="pi-time">${v.time || ''}</span>
+      </div>
+    `).join('');
+  }
+
+  function filterParkedList() {
+    const query = document.getElementById('exit-search').value.trim().toUpperCase();
+    const filtered = parked.filter(v => v.plate.includes(query));
+    renderParkedList(filtered);
+  }
+
+  function selectExitVehicle(id, el) {
+    selectedExitId = id;
+    document.querySelectorAll('.parked-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('exit-confirm-btn').disabled = false;
+  }
+
   function confirmExit() {
     if (!selectedExitId) return;
 
@@ -965,15 +1127,117 @@
     .catch(() => showToast('⚠ Network error on exit', 'error'));
   }
 
+  // ── Records Modal ───────────────────────────────────────────────────────────
+  function checkRecords() {
+    activeTab = 'all';
+    ['tab-all','tab-in','tab-out','tab-parked'].forEach(id => {
+      document.getElementById(id).classList.remove('active');
+    });
+    document.getElementById('tab-all').classList.add('active');
+    renderRecordsTable();
+    document.getElementById('records-modal').classList.add('open');
+  }
+
+  function closeRecordsModal() {
+    document.getElementById('records-modal').classList.remove('open');
+  }
+
+  function switchTab(tab) {
+    activeTab = tab;
+    ['tab-all','tab-in','tab-out','tab-parked'].forEach(id => {
+      document.getElementById(id).classList.remove('active');
+    });
+    document.getElementById('tab-' + tab).classList.add('active');
+    renderRecordsTable();
+  }
+
+  function renderRecordsTable() {
+    const wrap = document.getElementById('records-table-wrap');
+    const subtitle = document.getElementById('records-subtitle');
+
+    let rows = [];
+    let isParkedView = false;
+
+    if (activeTab === 'parked') {
+      isParkedView = true;
+      rows = parked;
+      subtitle.textContent = `${rows.length} vehicle(s) currently parked`;
+    } else {
+      rows = activeTab === 'all' ? log : log.filter(l => l.type === activeTab);
+      subtitle.textContent = `${rows.length} record(s) found`;
+    }
+
+    if (!rows || rows.length === 0) {
+      wrap.innerHTML = '<div class="records-empty">No records found</div>';
+      return;
+    }
+
+    if (isParkedView) {
+      wrap.innerHTML = `
+        <table class="records-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Plate</th>
+              <th>Owner</th>
+              <th>Fee</th>
+              <th>Entry Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(v => `
+              <tr>
+                <td>${v.icon} ${v.name}</td>
+                <td style="color:var(--accent);letter-spacing:1px;">${v.plate}</td>
+                <td>${v.user_name || '—'}</td>
+                <td style="color:var(--success);">₹${v.fee}</td>
+                <td>${v.time || '—'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    } else {
+      wrap.innerHTML = `
+        <table class="records-table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Plate</th>
+              <th>Type</th>
+              <th>Fee</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(l => `
+              <tr>
+                <td><span class="badge ${l.type}">${l.type === 'in' ? '▲ Entry' : '▼ Exit'}</span></td>
+                <td style="color:var(--accent);letter-spacing:1px;">${l.plate}</td>
+                <td>${l.icon || ''} ${l.name}</td>
+                <td style="color:var(--success);">₹${l.fee}</td>
+                <td>${l.time || '—'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+  }
+
+  // ── Reset ───────────────────────────────────────────────────────────────────
   function deleteRecords() {
+    if (!confirm('Are you sure you want to reset all records? This cannot be undone.')) return;
     fetch(BASE_URL + "/reset", { method: "POST" })
     .then(res => res.json())
     .then(() => {
       loadData();
       showToast('Records cleared 🗑', 'success');
-    });
+    })
+    .catch(() => showToast('⚠ Network error on reset', 'error'));
   }
 
+  // ── Data ────────────────────────────────────────────────────────────────────
   function loadData() {
     fetch(BASE_URL + "/data")
     .then(res => res.json())
@@ -998,13 +1262,18 @@
 
     list.innerHTML = log.map(e => `
       <li>
-        <span>${e.icon}</span>
-        <span>${e.plate}</span>
-        <span>${e.time}</span>
+        <span class="log-icon">${e.icon || '🚗'}</span>
+        <span class="log-info">
+          <span class="log-txt">${e.name || ''}</span>
+          <span class="log-plate">${e.plate}</span>
+        </span>
+        <span class="log-amt">₹${e.fee}</span>
+        <span class="log-time">${(e.time || '').split(' ').slice(1).join(' ')}</span>
       </li>
     `).join('');
   }
 
+  // ── Toast ───────────────────────────────────────────────────────────────────
   let toastTimer;
   function showToast(msg, type = '') {
     const t = document.getElementById('toast');
@@ -1013,6 +1282,17 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { t.className = ''; }, 3000);
   }
+
+  // ── Close modals on overlay click ───────────────────────────────────────────
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.remove('open');
+        selectedExitId = null;
+        selectedParkCard = null;
+      }
+    });
+  });
 
   loadData();
 </script>

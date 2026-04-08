@@ -116,3 +116,31 @@
 2026-04-08 10:33:10,992 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
 2026-04-08 10:33:10,992 [INFO] Added job "_run_daily_summary" to job store "default"
 2026-04-08 10:33:10,992 [INFO] Scheduler started
+2026-04-08 10:41:57,054 [INFO] Scheduler has been shut down
+2026-04-08 10:48:17,758 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-08 10:48:17,760 [INFO] Added job "_run_daily_summary" to job store "default"
+2026-04-08 10:48:17,760 [INFO] Scheduler started
+2026-04-08 10:48:29,590 [INFO] Scheduler has been shut down
+2026-04-08 11:09:57,397 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-08 11:09:57,398 [INFO] Added job "_run_daily_summary" to job store "default"
+2026-04-08 11:09:57,398 [INFO] Scheduler started
+2026-04-08 11:10:59,051 [INFO] Scheduler has been shut down
+2026-04-08 11:11:04,466 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-08 11:11:04,467 [INFO] Added job "_run_daily_summary" to job store "default"
+2026-04-08 11:11:04,467 [INFO] Scheduler started
+2026-04-08 11:14:29,655 [INFO] Scheduler has been shut down
+2026-04-08 11:14:29,986 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-08 11:14:29,987 [INFO] Added job "_run_daily_summary" to job store "default"
+2026-04-08 11:14:29,987 [INFO] Scheduler started
+2026-04-08 11:14:31,503 [INFO] Scheduler has been shut down
+2026-04-08 11:14:31,746 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-08 11:14:31,746 [INFO] Added job "_run_daily_summary" to job store "default"
+2026-04-08 11:14:31,746 [INFO] Scheduler started
+2026-04-08 11:14:38,417 [INFO] Scheduler has been shut down
+2026-04-08 11:14:41,813 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-08 11:14:41,813 [INFO] Added job "_run_daily_summary" to job store "default"
+2026-04-08 11:14:41,813 [INFO] Scheduler started
+2026-04-08 11:15:36,023 [INFO] Email sent to rakshith3600@gmail.com | Vehicle Parked - KA 40 EK 5158
+2026-04-08 11:15:39,623 [INFO] Email sent to rakshithk.24.beis@acharya.ac.in | [ENTRY] KA 40 EK 5158 - 08-04-2026 11:15 AM
+2026-04-08 11:26:19,268 [INFO] Email sent to rakshith3600@gmail.com | Exit Receipt - KA 40 EK 5158 | Rs.100
+2026-04-08 11:26:23,029 [INFO] Email sent to rakshithk.24.beis@acharya.ac.in | [EXIT] KA 40 EK 5158 | Rs.100 collected

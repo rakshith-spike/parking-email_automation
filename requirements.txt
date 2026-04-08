@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+pymongo
+python-dotenv
+pydantic
+apscheduler
+certifi
+email-validator

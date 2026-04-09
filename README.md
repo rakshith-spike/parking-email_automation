@@ -1,5 +1,11 @@
  🚗 Parking Email Automation System
 
+  🚀 Live Project
+
+🔗 [View Parking System](http://parking-email-automation.s3-website-ap-southeast-2.amazonaws.com/)
+
+🔗 Backend API: http://13.237.119.7:8000
+
 A full-stack web application that automates parking management and sends email notifications for vehicle entry, exit, and daily summaries.
 
 ---
